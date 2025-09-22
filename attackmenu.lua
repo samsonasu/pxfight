@@ -1,3 +1,15 @@
+AttackMenu = { }
+
+function AttackMenu:new(o, hero)
+  o = o or {}
+  setmetatable(o, self)
+  self.__index = self
+  self.hero = hero
+
+  return o
+end
+
+
 local attackmenu = { items = {"Attack", "Defend", "Nerd out"} }
 
 local padding = 10
@@ -24,7 +36,7 @@ local function drawbox()
     if i == selectedItem then
       love.graphics.setColor(255,0,0)
     else
-      love.graphics.setColor(0,0,0)  
+      love.graphics.setColor(0,0,0)
     end
 
     love.graphics.print(attackmenu.items[i], x + padding, y + padding + (i-1)*15)
@@ -33,43 +45,20 @@ local function drawbox()
 
 end
 
-local function drawAlert() 
-  if alertText == nil then return end
-  local shake = 30.0
-  local shakeX = (math.random() * shake) - shake / 2.0
-  local shakeY = (math.random() * shake) - shake / 2.0
-  love.graphics.print(alertText, 300 + shakeX, 300 + shakeY, 0, 2, 2 )
-end
-
-function attackmenu.draw(dt)
+function AttackMenu:draw()
   drawbox()
-  drawAlert()
-  -- love.graphics.print("ATTACK", x + padding, y + padding)
 end
 
-function attackmenu.update(dt)
-  if alertText == nil then return end
-  if alertTime == nil then
-    alertTime = 0
-  elseif alertTime >= 2.0 then
-    alertText = nil
-    alertTime = nil
-    return
-  else 
-    alertTime = alertTime + dt
-  end
+function AttackMenu:update(dt)
+
 end
 
-function attackmenu.keypressed(key, scancode, isrepeat)
+function AttackMenu:keypressed(key, scancode, isrepeat)
   if key == "up" and selectedItem > 1 then
     selectedItem = selectedItem - 1
-  elseif key == "down" and selectedItem < #attackmenu.items then 
+  elseif key == "down" and selectedItem < #attackmenu.items then
     selectedItem = selectedItem + 1
   elseif key == "return" then
-    print(attackmenu.items[selectedItem])
-    alertText = "Player performs " .. attackmenu.items[selectedItem] .. "!\nIt was not effective!"
+    OnPlayerAction(attackmenu.items[selectedItem])
   end
 end
-
-
-return attackmenu
