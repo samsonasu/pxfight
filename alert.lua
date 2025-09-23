@@ -1,12 +1,9 @@
 Alert = { text="Hello World", time=3.0 }
 
-function Alert:new(o, text) 
+function Alert:new(o, text)
   o = o or {}
   setmetatable(o, self)
   self.__index = self
-  self.text = text 
-  self.isVisible = true
-  self.visibleTime = 0
   return o
 end
 
@@ -16,7 +13,7 @@ function Alert:draw(x, y)
     local shakeX = (math.random() * shake) - shake / 2.0
     local shakeY = (math.random() * shake) - shake / 2.0
     local rot = math.random() * 0.01 - 0.005
-    love.graphics.print(self.text, 300 + shakeX, 300 + shakeY, rot, 2, 2 )
+    love.graphics.print(self.text, 100 + shakeX, 300 + shakeY, rot, 2, 2 )
   end
 end
 
@@ -25,14 +22,14 @@ function Alert:show()
   self.visibleTime = 0
 end
 
-function Alert:update(dt) 
+function Alert:update(dt)
   if self.isVisible == false then return end
 
   if self.visibleTime >= self.time then
     self.isVisible = false
     self.visibleTime = nil
     return
-  else 
+  else
     self.visibleTime = self.visibleTime + dt
   end
 end

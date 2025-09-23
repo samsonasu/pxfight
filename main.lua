@@ -1,12 +1,16 @@
+require("util")
 require("hero")
 require("enemy")
 require("alert")
 require("attackmenu")
+require("fightpanel")
 
-local hero = Hero:new(nil, "knight")
+local hero = Hero:new{name="knight"}
 local enemy = Enemy:new(nil, "sloth_king")
-local alert = Alert:new(nil, "Hello")
-local frames = {hero, enemy, alert}
+local alert = Alert:new{}
+local fightpanel = FightPanel:new(nil)
+local frames = {hero, enemy, alert, fightpanel}
+
 local stateframes = {}
 
 local bg = love.graphics.newImage( "bg/cave.png" )
@@ -16,6 +20,8 @@ STATES = {"player", "enemy", "win", "lose"}
 local currentState = nil
 local queuedState = nil
 
+local defenseFactor = 1
+
 function love.load()
   love.window.setMode( 1024, 768, { resizable=true } )
   love.graphics.setDefaultFilter("nearest", "nearest")
@@ -24,11 +30,12 @@ function love.load()
 
   setMusic("battle2")
 
-  hero.x = love.graphics.getWidth() / 5
-  hero.y = love.graphics.getHeight() * .75
+  hero.x = 100
+  hero.y = love.graphics.getHeight() - 350
 
   enemy.x = love.graphics.getWidth() * .75
-  enemy.y = love.graphics.getHeight() * .4
+  enemy.y = 100
+
   setState("player")
 
   alert:show()
@@ -87,7 +94,11 @@ function setMusic(music)
 end
 
 function soundEffect(sfx)
-  local sound = love.audio.newSource("sfx/" .. sfx .. ".wav", "static")
+  if not string.match(sfx, "%.") then
+    sfx = sfx .. ".wav"
+  end
+
+  local sound = love.audio.newSource("sfx/" .. sfx, "static")
   sound:play()
 end
 
@@ -134,19 +145,35 @@ function OnPlayerAction(action)
       setState("idle")
       queueState("enemy", 2.5)
     end
+  elseif action == "Defend" then
+    alert.time = 2.5
+    alert.text = hero.name .. " braces for impact!"
+    defenseFactor = 0.5
+    alert:show()
+    setState("idle")
+    queueState("enemy", 2.75)
+  elseif action == "Nerd Out" then
+    soundEffect("boing.mp3")
+    defenseFactor = 2
+    alert.time = 2.5
+    alert.text = hero.name .. " Nerds Out!!\nIt's pretty sick but " .. enemy.name .. " isn't impressed :("
+    alert:show()
+    setState("idle")
+    queueState("enemy", 2.75)
   end
 end
 
 function OnEnemyAction(action)
   if action == "Attack" then
-    soundEffect("17_orc_atk_sword_1", 2)
-    local dmg = math.floor(math.random() * 10)
+    soundEffect("17_orc_atk_sword_1")
+    local dmg = math.floor(math.random() * 10 * defenseFactor)
+    defenseFactor = 1
     hero.hp = hero.hp - dmg
     -- enemy:animateAttack()
 
     if hero.hp <= 0 then
       alert.time = 300
-      alert.text = hero.name .. " attacks! It does " .. dmg .. " damage!\n" .. "LOL, you DIED!!!"
+      alert.text = enemy.name .. " attacks! It does " .. dmg .. " damage!\n" .. "LOL, you DIED!!!"
       alert:show()
       setState("lose")
     else

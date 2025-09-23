@@ -1,6 +1,6 @@
 require "attackmenu"
 
-Hero = { name = nil, sprite = nil, hp = 10, x = 0, y = 0}
+Hero = { name = "hero", sprite = nil, hp = 10, x = 0, y = 0}
 
 local STATS = {
   knight = {
@@ -31,15 +31,13 @@ local function calcAttackTranslate(dt)
   end
 end
 
-function Hero:new(o, name)
+function Hero:new(o)
   o = o or {}
   setmetatable(o, self)
   self.__index = self
-  self.name = name
 
-  self.sprite = love.graphics.newImage( "sprites/" .. self.name .. ".png" )
-
-  self.attackmenu = AttackMenu:new(nil, self)
+  o.sprite = love.graphics.newImage( "sprites/" .. o.name .. ".png" )
+  o.attackmenu = AttackMenu:new(nil, o, STATS[o.name].attacks)
 
   return o
 end
@@ -55,7 +53,6 @@ function Hero:draw()
   end
 
   love.graphics.draw(self.sprite, self.x + attackTranslateX, self.y, 0, width/self.sprite:getWidth(), height/self.sprite:getHeight())
-
 end
 
 function Hero:update(dt)
