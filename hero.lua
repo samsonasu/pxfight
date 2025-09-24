@@ -31,6 +31,8 @@ local function calcAttackTranslate(dt)
   end
 end
 
+local shader = love.graphics.newShader("shaders/outline.glsl")
+
 function Hero:new(o)
   o = o or {}
   setmetatable(o, self)
@@ -46,31 +48,19 @@ function Hero:draw()
   local height = love.graphics.getHeight() / 5
   local width = height * 2 / 3
 
-  if self.isActive then
-    love.graphics.setColor(12, 24, 165, 0.5)
-    love.graphics.circle("fill", self.x + width/2, self.y + height/2, width)
-    love.graphics.setColor(255,255,255)
-  end
-
   love.graphics.draw(self.sprite, self.x + attackTranslateX, self.y, 0, width/self.sprite:getWidth(), height/self.sprite:getHeight())
+
+  if self.isActive then
+    love.graphics.setShader(shader)
+    love.graphics.draw(self.sprite, self.x + attackTranslateX, self.y, 0, width/self.sprite:getWidth(), height/self.sprite:getHeight())
+    love.graphics.setShader()
+  end
 end
 
 function Hero:update(dt)
-  self.psystem:update(dt)
   if attackTranslateTime ~= nil then
     calcAttackTranslate(dt)
   end
-end
-
-function Hero:activate()
-  local psystem = love.graphics.newParticleSystem(self.sprite, 32)
-	psystem:setParticleLifetime(2, 5) -- Particles live at least 2s and at most 5s.
-	psystem:setEmissionRate(50)
-	psystem:setSizeVariation(1)
-	psystem:setLinearAcceleration(-20, -20, 20, 20) -- Random movement in all directions.
-	psystem:setColors(1, 1, 1, 1, 1, 1, 1, 0) -- Fade to transparency.
-
-  self.psystem = psystem
 end
 
 function Hero:animateAttack()

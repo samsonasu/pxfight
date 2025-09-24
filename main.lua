@@ -5,6 +5,8 @@ require("alert")
 require("attackmenu")
 require("fightpanel")
 
+-- This file probably becomes FightScene.lua at some point in the future
+
 local hero = Hero:new{name="knight"}
 local enemy = Enemy:new(nil, "sloth_king")
 local alert = Alert:new{}
@@ -12,6 +14,8 @@ local fightpanel = FightPanel:new(nil)
 local frames = {hero, enemy, alert, fightpanel}
 
 local stateframes = {}
+local heroes = {}
+local enemies = {}
 
 local bg = love.graphics.newImage( "bg/cave.png" )
 local bgm = nil
@@ -21,20 +25,26 @@ local currentState = nil
 local queuedState = nil
 
 local defenseFactor = 1
+local attackFactor = 1
 
 function love.load()
   love.window.setMode( 1024, 768, { resizable=true } )
   love.graphics.setDefaultFilter("nearest", "nearest")
-  local manaspace = love.graphics.newFont("fonts/manaspc.ttf", 14)
+  local manaspace = love.graphics.newFont("fonts/manaspc.ttf", 16)
   love.graphics.setFont(manaspace)
 
   setMusic("battle2")
 
   hero.x = 100
   hero.y = love.graphics.getHeight() - 350
+  table.insert(heroes, hero)
 
   enemy.x = love.graphics.getWidth() * .75
   enemy.y = 100
+  table.insert(enemies, enemy)
+
+  fightpanel.enemies = enemies
+  fightpanel.heroes = heroes
 
   setState("player")
 
@@ -108,8 +118,9 @@ function setState(state)
 
   print("setState: " .. state)
   stateframes = {} -- maybe need destructors here
+  hero.isActive = false
   if state == "player" then
-    hero:activate()
+    hero.isActive = true
     table.insert(stateframes, hero.attackmenu)
   elseif state == "enemy" then
     OnEnemyAction("Attack")
@@ -130,7 +141,8 @@ function OnPlayerAction(action)
   print(action)
   if action == "Attack" then
     soundEffect("26_sword_hit_1")
-    local dmg = math.floor(math.random() * 10)
+    local dmg = math.floor(math.random() * 10) * attackFactor
+    attackFactor = 1
     enemy.hp = enemy.hp - dmg
     hero:animateAttack()
     if enemy.hp <= 0 then
@@ -149,12 +161,16 @@ function OnPlayerAction(action)
     alert.time = 2.5
     alert.text = hero.name .. " braces for impact!"
     defenseFactor = 0.5
+    attackFactor = 2
     alert:show()
     setState("idle")
     queueState("enemy", 2.75)
   elseif action == "Nerd Out" then
     soundEffect("boing.mp3")
     defenseFactor = 2
+    if math.random() > .8 then
+      attackFactor = 4
+    end
     alert.time = 2.5
     alert.text = hero.name .. " Nerds Out!!\nIt's pretty sick but " .. enemy.name .. " isn't impressed :("
     alert:show()

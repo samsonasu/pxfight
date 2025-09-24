@@ -19,29 +19,31 @@ local alertTime = nil
 
 function AttackMenu:drawbox()
   local cornerRadius = 10
-
+  local fontheight = love.graphics.getFont():getHeight()
   local w = 150
-  local h = 20 * #self.attacks
-  -- util.pp(self.hero)
-  local y = self.hero.y
-  local x = self.x
+  local h = 20 + fontheight * #self.attacks
+  local y = self.hero.y + 50
+  local x = self.hero.x + 100
 
-  love.graphics.setColor(20,0,220)
+  -- love.graphics.setColor(1,1,1, 0.8)
+  util.setColorHex(util.colors.blue .. "AA")
   love.graphics.rectangle("fill", x, y, w, h, cornerRadius, cornerRadius)
 
-  love.graphics.setColor(255,255,255) -- reset colours
-  love.graphics.rectangle("fill", x+2, y+2, w-4, h-4, cornerRadius, cornerRadius)
+  love.graphics.setColor(.2,0,.8)
+  love.graphics.rectangle("line", x, y, w, h, cornerRadius, cornerRadius)
+  love.graphics.setColor(1,1,1)
+
 
   for i = 1, #self.attacks do
     if i == selectedItem then
-      love.graphics.setColor(255,0,0)
+      love.graphics.setColor(1,1,1)
     else
-      love.graphics.setColor(0,0,0)
+      love.graphics.setColor(0.7, 0.7, 0.7)
     end
 
-    love.graphics.print(self.attacks[i], x + padding, y + padding + (i-1)*15)
+    love.graphics.print(self.attacks[i], x + padding, y + padding + (i-1)*fontheight)
   end
-  love.graphics.setColor(255,255,255) -- reset colours
+  love.graphics.setColor(1,1,1) -- reset colours
 
 end
 

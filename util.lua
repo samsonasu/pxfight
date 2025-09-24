@@ -86,3 +86,19 @@ function util.pp(table)
     print("  - " .. k .. " => " .. tostring(v))
   end
 end
+
+function util.capitalize(s)
+  local first = string.upper(string.sub(s,1,1))
+  local rest = string.sub(s,2,string.len(s))
+  return first..rest
+end
+
+function util.titlecase(s)
+  local text, _ = s:gsub("_", " ")
+  local result = ""
+  for word in string.gmatch(text, "%a+") do
+    result = result .. util.capitalize(word) .. " "
+  end
+  chomp = result:sub(1, result:len() - 1)
+  return chomp
+end
