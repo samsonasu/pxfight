@@ -1,6 +1,6 @@
 require "attackmenu"
 
-Hero = { name = "hero", sprite = nil, hp = 10, x = 0, y = 0}
+Hero = { name="hero", nickname="Cecil", sprite = nil, hp = 10, x = 0, y = 0}
 
 local STATS = {
   knight = {

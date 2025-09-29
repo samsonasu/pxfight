@@ -1,4 +1,7 @@
 require("util")
+local push = require "lib/push"
+local gameWidth, gameHeight = 1280, 720 --fixed game resolution
+
 require("hero")
 require("enemy")
 require("alert")
@@ -28,9 +31,13 @@ local defenseFactor = 1
 local attackFactor = 1
 
 function love.load()
-  love.window.setMode( 1024, 768, { resizable=true } )
+  local windowWidth, windowHeight = love.window.getDesktopDimensions()
+  windowWidth, windowHeight = windowWidth*.7, windowHeight*.7 --make the window a bit smaller than the screen itself
+
+  push:setupScreen(gameWidth, gameHeight, windowWidth, windowHeight, {resizable = true})
+
   love.graphics.setDefaultFilter("nearest", "nearest")
-  local manaspace = love.graphics.newFont("fonts/manaspc.ttf", 16)
+  local manaspace = love.graphics.newFont("fonts/mago1.ttf", 32)
   love.graphics.setFont(manaspace)
 
   setMusic("battle2")
@@ -44,11 +51,16 @@ function love.load()
   table.insert(enemies, enemy)
 
   fightpanel.enemies = enemies
-  fightpanel.heroes = heroes
+  -- fightpanel.heroes = heroes
+  fightpanel.heroes = { hero, hero, hero, hero }
 
   setState("player")
 
   alert:show()
+end
+
+function love.resize(w, h)
+  push:resize(w, h)
 end
 
 function love.update(dt)
@@ -83,13 +95,17 @@ function love.keypressed(key, scancode, isrepeat)
 end
 
 function love.draw()
-  love.graphics.draw(bg)
+  push:start()
+
+  love.graphics.draw(bg, 0, 0, 0, gameWidth/bg:getWidth())
   for i,f in ipairs(frames) do
     f:draw()
   end
   for i,f in ipairs(stateframes) do
     f:draw()
   end
+  push:finish()
+
 end
 
 function setMusic(music)
